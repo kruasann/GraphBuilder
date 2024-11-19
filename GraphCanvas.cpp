@@ -3,7 +3,7 @@
 #include <QPainterPath>
 #include <cmath>
 
-GraphCanvas::GraphCanvas(QWidget* parent) : QWidget(parent), time(0.0), xValue(5.0) {
+GraphCanvas::GraphCanvas(QWidget* parent) : QWidget(parent), time(0.0), xValue(5.0), functionType(0) {
     // Создаем таймер для анимации
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &GraphCanvas::updateTime);
@@ -19,13 +19,18 @@ GraphCanvas::~GraphCanvas() {
 }
 
 void GraphCanvas::setXValue(double newX) {
-    xValue = newX; // Обновляем значение x
-    update();      // Перерисовываем график
+    xValue = newX;
+    update();
+}
+
+void GraphCanvas::setFunction(int function) {
+    functionType = function;
+    update();
 }
 
 void GraphCanvas::updateTime() {
-    time += 0.1; // Увеличиваем время
-    update();    // Перерисовываем график
+    time += 0.1;
+    update();
 }
 
 void GraphCanvas::paintEvent(QPaintEvent* event) {
@@ -43,7 +48,7 @@ void GraphCanvas::paintEvent(QPaintEvent* event) {
     painter.drawLine(0, height / 2, width, height / 2); // Ось X
     painter.drawLine(width / 2, 0, width / 2, height);  // Ось Y
 
-    // Рисуем график sin(x)
+    // Рисуем выбранную функцию
     QPainterPath path;
     double step = 0.01;
     double scaleX = 50.0;
@@ -52,10 +57,19 @@ void GraphCanvas::paintEvent(QPaintEvent* event) {
     double xStart = -width / 2 / scaleX;
     double xEnd = width / 2 / scaleX;
 
-    path.moveTo(width / 2 + xStart * scaleX, height / 2 - std::sin(xStart + time) * scaleY);
+    auto computeY = [&](double x) {
+        switch (functionType) {
+        case 0: return std::sin(x + time);  // sin(x)
+        case 1: return std::cos(x + time);  // cos(x)
+        case 2: return x;                   // x (линейная)
+        default: return 0.0;
+        }
+        };
+
+    path.moveTo(width / 2 + xStart * scaleX, height / 2 - computeY(xStart) * scaleY);
 
     for (double x = xStart + step; x <= xEnd; x += step) {
-        double y = std::sin(x + time);
+        double y = computeY(x);
         double pixelX = width / 2 + x * scaleX;
         double pixelY = height / 2 - y * scaleY;
         path.lineTo(pixelX, pixelY);
@@ -64,9 +78,9 @@ void GraphCanvas::paintEvent(QPaintEvent* event) {
     painter.setPen(Qt::blue);
     painter.drawPath(path);
 
-    // Отображаем значение sin(x) при x = xValue
-    double yValue = std::sin(xValue + time);
-    QString text = QString("sin(%1) = %2").arg(xValue).arg(yValue);
+    // Отображаем значение выбранной функции в x = xValue
+    double yValue = computeY(xValue);
+    QString text = QString("f(%1) = %2").arg(xValue).arg(yValue);
     painter.setPen(Qt::red);
     painter.drawText(10, 20, text);
 }
