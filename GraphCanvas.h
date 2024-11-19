@@ -11,16 +11,18 @@ public:
     explicit GraphCanvas(QWidget* parent = nullptr);
     ~GraphCanvas();
 
+    void setXValue(double newX); // Метод для установки нового значения x
+
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
     QTimer* timer;
     double time;
-    double xValue; // Значение x по умолчанию
+    double xValue; // Текущее значение x
 
 private slots:
-    void updateTime();
+    void updateTime(); // Слот для обновления времени
 };
 
 #endif // GRAPHCANVAS_H

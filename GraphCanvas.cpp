@@ -4,11 +4,12 @@
 #include <cmath>
 
 GraphCanvas::GraphCanvas(QWidget* parent) : QWidget(parent), time(0.0), xValue(5.0) {
-    // Создаем таймер для анимации (если понадобится)
+    // Создаем таймер для анимации
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &GraphCanvas::updateTime);
-    // Запускаем таймер (закомментируйте, если анимация не нужна)
-    // timer->start(50);
+
+    // Запускаем таймер с интервалом 50 мс
+    timer->start(50);
 }
 
 GraphCanvas::~GraphCanvas() {
@@ -17,9 +18,14 @@ GraphCanvas::~GraphCanvas() {
     }
 }
 
+void GraphCanvas::setXValue(double newX) {
+    xValue = newX; // Обновляем значение x
+    update();      // Перерисовываем график
+}
+
 void GraphCanvas::updateTime() {
-    time += 0.1;
-    update();
+    time += 0.1; // Увеличиваем время
+    update();    // Перерисовываем график
 }
 
 void GraphCanvas::paintEvent(QPaintEvent* event) {
