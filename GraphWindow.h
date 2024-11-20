@@ -12,6 +12,19 @@
 #include <QWheelEvent>
 #include <QToolTip>
 #include <QTimer>
+#include <QColor>
+#include <QListWidget>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QMetaType>
+
+struct FunctionItem {
+    QString expression;
+    QColor color;
+    QLineSeries* series;
+    bool visible;
+};
+Q_DECLARE_METATYPE(FunctionItem*)
 
 class GraphWindow : public QMainWindow {
     Q_OBJECT
@@ -29,16 +42,15 @@ protected:
 private:
     QChart* chart = nullptr;
     QChartView* chartView = nullptr;
-    QLineSeries* series = nullptr;
+    QList<FunctionItem*> functions;
     QScatterSeries* intersectionSeries = nullptr;
     QScatterSeries* hoverSeries = nullptr;
     QLineSeries* xAxisZeroLine = nullptr;
     QLineSeries* yAxisZeroLine = nullptr;
-    QLineEdit* functionInput = nullptr;
-    QPushButton* plotButton = nullptr;
+    QListWidget* functionListWidget = nullptr;
+    QPushButton* addFunctionButton = nullptr;
     QValueAxis* axisX = nullptr;
     QValueAxis* axisY = nullptr;
-    QString userFunction;
 
     QPoint lastMousePos; // Last mouse position
     bool isLeftMousePressed = false;
@@ -48,13 +60,17 @@ private:
 
 private:
     void updateGraph();                   // Update the graph
-    void updateIntersections();           // Find intersections with axes
+    void updateIntersections();           // Find intersections between functions
     void updateZeroLines();               // Update zero lines
-    double evaluateExpression(double x);  // Evaluate the user function
+    double evaluateExpression(const QString& expression, double x);  // Evaluate a function
     QPointF findClosestPoint(const QPointF& chartPos); // Find the closest data point
+    void addFunction(const QString& expression = "sin(x)"); // Add a new function
+    void removeFunction(int index);       // Remove a function
+    QColor getNextColor();                // Get the next color for a new function
 
 private slots:
-    void plotGraph();                     // Slot to plot the graph
+    void onAddFunctionClicked();          // Slot to add a function
+    void onFunctionItemChanged(QListWidgetItem* item); // Slot when a function item is changed
     void onAxisRangeChanged();            // Slot for axis range changes
 };
 

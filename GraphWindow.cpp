@@ -3,24 +3,47 @@
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QScatterSeries>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QDebug>
 #include <QToolTip>
+#include <QColorDialog>
 #include "muParser.h"
 #include <algorithm> // For std::max
+#include <QListWidgetItem>
 
 GraphWindow::GraphWindow(QWidget* parent)
-    : QMainWindow(parent), userFunction("sin(x)") {
+    : QMainWindow(parent) {
+
+    qRegisterMetaType<FunctionItem*>("FunctionItem*");
 
     // Create central widget
     QWidget* centralWidget = new QWidget(this);
-    QVBoxLayout* layout = new QVBoxLayout(centralWidget);
+    QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
+
+    // Left side: function list and controls
+    QWidget* leftWidget = new QWidget(this);
+    QVBoxLayout* leftLayout = new QVBoxLayout(leftWidget);
+
+    // Function list
+    functionListWidget = new QListWidget(this);
+    leftLayout->addWidget(functionListWidget);
+
+    // Add function button
+    addFunctionButton = new QPushButton("Add Function", this);
+    leftLayout->addWidget(addFunctionButton);
+    connect(addFunctionButton, &QPushButton::clicked, this, &GraphWindow::onAddFunctionClicked);
+
+    mainLayout->addWidget(leftWidget);
+
+    // Right side: chart
+    QWidget* rightWidget = new QWidget(this);
+    QVBoxLayout* rightLayout = new QVBoxLayout(rightWidget);
 
     // Create the chart
     chart = new QChart();
     chart->setTitle("Graph Viewer");
 
-    // Create data series
-    series = new QLineSeries();
+    // Create intersection and hover series
     intersectionSeries = new QScatterSeries();
     intersectionSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     intersectionSeries->setMarkerSize(10.0);
@@ -31,7 +54,6 @@ GraphWindow::GraphWindow(QWidget* parent)
     hoverSeries->setMarkerSize(10.0);
     hoverSeries->setColor(Qt::blue);
 
-    chart->addSeries(series);
     chart->addSeries(intersectionSeries);
     chart->addSeries(hoverSeries);
 
@@ -46,23 +68,14 @@ GraphWindow::GraphWindow(QWidget* parent)
     // Configure the chart view
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
-    layout->addWidget(chartView);
+    rightLayout->addWidget(chartView);
 
-    // Function input field
-    functionInput = new QLineEdit(this);
-    functionInput->setPlaceholderText("Enter function: e.g., y=sin(x), y=x^2");
-    functionInput->setText("y=sin(x)");
-    layout->addWidget(functionInput);
-
-    // Plot button
-    plotButton = new QPushButton("Plot", this);
-    layout->addWidget(plotButton);
-    connect(plotButton, &QPushButton::clicked, this, &GraphWindow::plotGraph);
+    mainLayout->addWidget(rightWidget);
 
     // Set central widget
     setCentralWidget(centralWidget);
     setWindowTitle("Qt Charts Graph Viewer");
-    resize(800, 600);
+    resize(1000, 600);
 
     // Create axes
     axisX = new QValueAxis();
@@ -76,8 +89,6 @@ GraphWindow::GraphWindow(QWidget* parent)
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
 
-    series->attachAxis(axisX);
-    series->attachAxis(axisY);
     intersectionSeries->attachAxis(axisX);
     intersectionSeries->attachAxis(axisY);
     hoverSeries->attachAxis(axisX);
@@ -96,37 +107,93 @@ GraphWindow::GraphWindow(QWidget* parent)
     connect(axisX, &QValueAxis::rangeChanged, this, &GraphWindow::onAxisRangeChanged);
     connect(axisY, &QValueAxis::rangeChanged, this, &GraphWindow::onAxisRangeChanged);
 
-    // Initialize the graph
-    plotGraph();
+    // Connect function list item changes
+    connect(functionListWidget, &QListWidget::itemChanged, this, &GraphWindow::onFunctionItemChanged);
+
+    // Initialize with one function
+    addFunction();
 }
 
 GraphWindow::~GraphWindow() {
-    // All objects are automatically deleted
+    // Clean up function items
+    qDeleteAll(functions);
 }
 
-void GraphWindow::plotGraph() {
-    userFunction = functionInput->text().trimmed();
+void GraphWindow::addFunction(const QString& expression) {
+    FunctionItem* func = new FunctionItem;
+    func->expression = expression;
+    func->color = getNextColor();
+    func->series = new QLineSeries();
+    func->series->setColor(func->color);
+    func->visible = true;
 
-    if (userFunction.startsWith("y=")) {
-        userFunction = userFunction.mid(2).trimmed();
-    }
+    chart->addSeries(func->series);
+    func->series->attachAxis(axisX);
+    func->series->attachAxis(axisY);
 
-    if (userFunction.isEmpty()) {
-        qDebug() << "Function input is empty.";
+    functions.append(func);
+
+    // Add to the function list widget
+    QListWidgetItem* item = new QListWidgetItem(functionListWidget);
+    item->setFlags(item->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
+    item->setText(func->expression);
+    item->setCheckState(Qt::Checked);
+    item->setData(Qt::UserRole, QVariant::fromValue(func));
+
+    // Set item color
+    item->setForeground(func->color);
+}
+
+
+void GraphWindow::removeFunction(int index) {
+    if (index < 0 || index >= functions.size())
+        return;
+
+    FunctionItem* func = functions.at(index);
+
+    // Remove from chart
+    chart->removeSeries(func->series);
+    delete func->series;
+
+    // Remove from list
+    functions.removeAt(index);
+    delete func;
+
+    // Remove from function list widget
+    delete functionListWidget->takeItem(index);
+}
+
+QColor GraphWindow::getNextColor() {
+    static int colorIndex = 0;
+    static QList<QColor> colors = { Qt::blue, Qt::green, Qt::magenta, Qt::cyan, Qt::darkYellow };
+    QColor color = colors.at(colorIndex % colors.size());
+    colorIndex++;
+    return color;
+}
+
+void GraphWindow::onAddFunctionClicked() {
+    addFunction();
+    updateGraph();
+}
+
+void GraphWindow::onFunctionItemChanged(QListWidgetItem* item) {
+    FunctionItem* func = item->data(Qt::UserRole).value<FunctionItem*>();
+    if (!func) {
+        qDebug() << "Error: FunctionItem pointer is null.";
         return;
     }
 
-    if (!userFunction.contains("x")) {
-        qDebug() << "Function does not contain variable 'x'.";
-        return;
-    }
+    func->expression = item->text();
+    func->visible = (item->checkState() == Qt::Checked);
+
+    // Show or hide the series
+    func->series->setVisible(func->visible);
 
     updateGraph();
 }
 
 void GraphWindow::updateGraph() {
-    // Clear existing data
-    series->clear();
+    // Clear intersection and hover series
     intersectionSeries->clear();
     hoverSeries->clear();
 
@@ -139,17 +206,24 @@ void GraphWindow::updateGraph() {
     double axisWidthInPixels = chartView->size().width();
     int numPoints = std::max(static_cast<int>((axisWidthInPixels / pixelsPerPoint)), 500);
 
-    // Generate data points
-    QVector<QPointF> points;
     double step = (xMax - xMin) / numPoints;
 
-    for (double x = xMin; x <= xMax; x += step) {
-        double y = evaluateExpression(x);
-        points.append(QPointF(x, y));
-    }
+    // Evaluate each function
+    for (FunctionItem* func : functions) {
+        if (!func->visible)
+            continue;
 
-    // Update the series with new points
-    series->replace(points);
+        QVector<QPointF> points;
+
+        for (double x = xMin; x <= xMax; x += step) {
+            double y = evaluateExpression(func->expression, x);
+            if (std::isnan(y) || std::isinf(y))
+                continue;
+            points.append(QPointF(x, y));
+        }
+
+        func->series->replace(points);
+    }
 
     // Update intersections and zero lines
     updateIntersections();
@@ -157,29 +231,60 @@ void GraphWindow::updateGraph() {
 }
 
 void GraphWindow::updateIntersections() {
-    double xMin = axisX->min();
-    double xMax = axisX->max();
-    int numSteps = 500;
-    double step = (xMax - xMin) / numSteps;
+    intersectionSeries->clear();
 
-    double prevX = xMin;
-    double prevY = evaluateExpression(prevX);
+    // Compare each pair of functions
+    for (int i = 0; i < functions.size(); ++i) {
+        FunctionItem* func1 = functions.at(i);
+        if (!func1->visible)
+            continue;
 
-    for (int i = 1; i <= numSteps; ++i) {
-        double x = xMin + i * step;
-        double y = evaluateExpression(x);
+        for (int j = i + 1; j < functions.size(); ++j) {
+            FunctionItem* func2 = functions.at(j);
+            if (!func2->visible)
+                continue;
 
-        if ((prevY <= 0 && y >= 0) || (prevY >= 0 && y <= 0)) {
-            // Estimate zero crossing
-            double xZero = prevX - prevY * (x - prevX) / (y - prevY);
-            double yZero = 0.0;
-            intersectionSeries->append(xZero, yZero);
+            // Find intersections between func1 and func2
+            const auto& points1 = func1->series->points();
+            const auto& points2 = func2->series->points();
+
+            int index1 = 0;
+            int index2 = 0;
+
+            while (index1 < points1.size() - 1 && index2 < points2.size() - 1) {
+                double x1 = points1.at(index1).x();
+                double x2 = points2.at(index2).x();
+
+                if (std::abs(x1 - x2) < 1e-6) {
+                    double y1 = points1.at(index1).y();
+                    double y2 = points2.at(index2).y();
+                    double y1_next = points1.at(index1 + 1).y();
+                    double y2_next = points2.at(index2 + 1).y();
+
+                    // Check if y-values cross between these points
+                    if ((y1 - y2) * (y1_next - y2_next) < 0) {
+                        // Estimate intersection point
+                        double t = (y2 - y1) / ((y1_next - y1) - (y2_next - y2));
+                        double xIntersect = x1 + t * (points1.at(index1 + 1).x() - x1);
+                        double yIntersect = y1 + t * (y1_next - y1);
+
+                        intersectionSeries->append(xIntersect, yIntersect);
+                    }
+
+                    index1++;
+                    index2++;
+                }
+                else if (x1 < x2) {
+                    index1++;
+                }
+                else {
+                    index2++;
+                }
+            }
         }
-
-        prevX = x;
-        prevY = y;
     }
 }
+
 
 void GraphWindow::updateZeroLines() {
     double xMin = axisX->min();
@@ -201,15 +306,15 @@ void GraphWindow::updateZeroLines() {
     }
 }
 
-double GraphWindow::evaluateExpression(double x) {
+double GraphWindow::evaluateExpression(const QString& expression, double x) {
     try {
         mu::Parser parser;
         parser.DefineVar("x", &x);
-        parser.SetExpr(userFunction.toUtf8().constData());
+        parser.SetExpr(expression.toUtf8().constData());
         return parser.Eval();
     }
     catch (mu::Parser::exception_type& e) {
-        qDebug() << "Error evaluating expression:" << e.GetMsg().c_str();
+        // qDebug() << "Error evaluating expression:" << e.GetMsg().c_str();
         return std::numeric_limits<double>::quiet_NaN();
     }
 }
@@ -238,11 +343,17 @@ QPointF GraphWindow::findClosestPoint(const QPointF& chartPos) {
     QPointF closestPoint;
     double minDistance = std::numeric_limits<double>::max();
 
-    for (const QPointF& point : series->points()) {
-        double distance = std::hypot(point.x() - chartPos.x(), point.y() - chartPos.y());
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestPoint = point;
+    // Iterate over all functions
+    for (FunctionItem* func : functions) {
+        if (!func->visible)
+            continue;
+
+        for (const QPointF& point : func->series->points()) {
+            double distance = std::hypot(point.x() - chartPos.x(), point.y() - chartPos.y());
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = point;
+            }
         }
     }
 
