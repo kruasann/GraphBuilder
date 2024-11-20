@@ -6,19 +6,20 @@
 #include <QDebug>
 #include <QToolTip>
 #include "muParser.h"
+#include <algorithm> // For std::max
 
 GraphWindow::GraphWindow(QWidget* parent)
     : QMainWindow(parent), userFunction("sin(x)") {
 
-    // Создаем центральный виджет
+    // Create central widget
     QWidget* centralWidget = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(centralWidget);
 
-    // Создаем график
+    // Create the chart
     chart = new QChart();
     chart->setTitle("Graph Viewer");
 
-    // Создаем серию данных
+    // Create data series
     series = new QLineSeries();
     intersectionSeries = new QScatterSeries();
     intersectionSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
@@ -34,7 +35,7 @@ GraphWindow::GraphWindow(QWidget* parent)
     chart->addSeries(intersectionSeries);
     chart->addSeries(hoverSeries);
 
-    // Создаем нулевые линии
+    // Create zero lines
     xAxisZeroLine = new QLineSeries();
     yAxisZeroLine = new QLineSeries();
     xAxisZeroLine->setPen(QPen(Qt::black));
@@ -42,28 +43,28 @@ GraphWindow::GraphWindow(QWidget* parent)
     chart->addSeries(xAxisZeroLine);
     chart->addSeries(yAxisZeroLine);
 
-    // Настраиваем представление графика
+    // Configure the chart view
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     layout->addWidget(chartView);
 
-    // Поле ввода пользовательской функции
+    // Function input field
     functionInput = new QLineEdit(this);
     functionInput->setPlaceholderText("Enter function: e.g., y=sin(x), y=x^2");
     functionInput->setText("y=sin(x)");
     layout->addWidget(functionInput);
 
-    // Кнопка для построения графика
+    // Plot button
     plotButton = new QPushButton("Plot", this);
     layout->addWidget(plotButton);
     connect(plotButton, &QPushButton::clicked, this, &GraphWindow::plotGraph);
 
-    // Устанавливаем центральный виджет
+    // Set central widget
     setCentralWidget(centralWidget);
     setWindowTitle("Qt Charts Graph Viewer");
     resize(800, 600);
 
-    // Создаем оси
+    // Create axes
     axisX = new QValueAxis();
     axisX->setTitleText("X Axis");
     axisX->setRange(-10, 10);
@@ -86,12 +87,21 @@ GraphWindow::GraphWindow(QWidget* parent)
     yAxisZeroLine->attachAxis(axisX);
     yAxisZeroLine->attachAxis(axisY);
 
-    // Инициализируем график
+    // Initialize the update timer
+    updateTimer = new QTimer(this);
+    updateTimer->setSingleShot(true);
+    connect(updateTimer, &QTimer::timeout, this, &GraphWindow::updateGraph);
+
+    // Connect axis range changed signals
+    connect(axisX, &QValueAxis::rangeChanged, this, &GraphWindow::onAxisRangeChanged);
+    connect(axisY, &QValueAxis::rangeChanged, this, &GraphWindow::onAxisRangeChanged);
+
+    // Initialize the graph
     plotGraph();
 }
 
 GraphWindow::~GraphWindow() {
-    // Все объекты автоматически удаляются
+    // All objects are automatically deleted
 }
 
 void GraphWindow::plotGraph() {
@@ -115,30 +125,33 @@ void GraphWindow::plotGraph() {
 }
 
 void GraphWindow::updateGraph() {
-    if (chart->series().contains(series)) {
-        chart->removeSeries(series);
-    }
-
+    // Clear existing data
     series->clear();
     intersectionSeries->clear();
     hoverSeries->clear();
 
+    // Get current axis ranges
     double xMin = axisX->min();
     double xMax = axisX->max();
-    double step = (xMax - xMin) / 500;
 
+    // Determine the number of points based on the current axis range
+    double pixelsPerPoint = 1.0; // Adjust this value as needed
+    double axisWidthInPixels = chartView->size().width();
+    int numPoints = std::max(static_cast<int>((axisWidthInPixels / pixelsPerPoint)), 500);
+
+    // Generate data points
     QVector<QPointF> points;
+    double step = (xMax - xMin) / numPoints;
 
     for (double x = xMin; x <= xMax; x += step) {
         double y = evaluateExpression(x);
         points.append(QPointF(x, y));
     }
 
+    // Update the series with new points
     series->replace(points);
-    chart->addSeries(series);
-    series->attachAxis(axisX);
-    series->attachAxis(axisY);
 
+    // Update intersections and zero lines
     updateIntersections();
     updateZeroLines();
 }
@@ -197,7 +210,7 @@ double GraphWindow::evaluateExpression(double x) {
     }
     catch (mu::Parser::exception_type& e) {
         qDebug() << "Error evaluating expression:" << e.GetMsg().c_str();
-        return 0.0;
+        return std::numeric_limits<double>::quiet_NaN();
     }
 }
 
@@ -209,7 +222,6 @@ void GraphWindow::wheelEvent(QWheelEvent* event) {
     else {
         chart->zoom(1 / factor);
     }
-    updateZeroLines(); // Update zero lines after zooming
     event->accept();
 }
 
@@ -243,7 +255,6 @@ void GraphWindow::mouseMoveEvent(QMouseEvent* event) {
         axisX->setRange(axisX->min() + delta.x(), axisX->max() + delta.x());
         axisY->setRange(axisY->min() + delta.y(), axisY->max() + delta.y());
         lastMousePos = event->pos();
-        updateZeroLines(); // Update zero lines after panning
         event->accept();
     }
     else {
@@ -273,4 +284,9 @@ void GraphWindow::mouseReleaseEvent(QMouseEvent* event) {
         setCursor(Qt::ArrowCursor);
     }
     QMainWindow::mouseReleaseEvent(event);
+}
+
+void GraphWindow::onAxisRangeChanged() {
+    // Start or restart the timer
+    updateTimer->start(updateInterval);
 }

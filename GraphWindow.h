@@ -11,6 +11,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QToolTip>
+#include <QTimer>
 
 class GraphWindow : public QMainWindow {
     Q_OBJECT
@@ -20,10 +21,10 @@ public:
     ~GraphWindow();
 
 protected:
-    void wheelEvent(QWheelEvent* event) override;    // Обработка колесика мыши
-    void mousePressEvent(QMouseEvent* event) override; // Обработка нажатия мыши
-    void mouseMoveEvent(QMouseEvent* event) override;  // Обработка перемещения мыши
-    void mouseReleaseEvent(QMouseEvent* event) override; // Обработка отпускания мыши
+    void wheelEvent(QWheelEvent* event) override;    // Handle mouse wheel events
+    void mousePressEvent(QMouseEvent* event) override; // Handle mouse press events
+    void mouseMoveEvent(QMouseEvent* event) override;  // Handle mouse move events
+    void mouseReleaseEvent(QMouseEvent* event) override; // Handle mouse release events
 
 private:
     QChart* chart = nullptr;
@@ -39,18 +40,22 @@ private:
     QValueAxis* axisY = nullptr;
     QString userFunction;
 
-    QPoint lastMousePos; // Последняя позиция мыши
+    QPoint lastMousePos; // Last mouse position
     bool isLeftMousePressed = false;
 
+    QTimer* updateTimer = nullptr; // Timer to throttle updates
+    int updateInterval = 50; // Update interval in milliseconds
+
 private:
-    void updateGraph();                   // Метод для обновления графика
-    void updateIntersections();           // Метод для поиска точек пересечения с осями
-    void updateZeroLines();               // Метод для обновления нулевых линий
-    double evaluateExpression(double x);  // Вычисление значения функции
-    QPointF findClosestPoint(const QPointF& chartPos); // Метод для нахождения ближайшей точки
+    void updateGraph();                   // Update the graph
+    void updateIntersections();           // Find intersections with axes
+    void updateZeroLines();               // Update zero lines
+    double evaluateExpression(double x);  // Evaluate the user function
+    QPointF findClosestPoint(const QPointF& chartPos); // Find the closest data point
 
 private slots:
-    void plotGraph();                     // Слот для построения графика
+    void plotGraph();                     // Slot to plot the graph
+    void onAxisRangeChanged();            // Slot for axis range changes
 };
 
 #endif // GRAPHWINDOW_H
