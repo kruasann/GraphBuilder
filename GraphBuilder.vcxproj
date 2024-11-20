@@ -87,8 +87,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>N:\Qt\6.6.3\msvc2019_64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>N:\Qt\6.6.3\msvc2019_64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>N:\Qt\6.6.3\msvc2019_64\include;N:\GraphBuilder\include;$(IncludePath)</IncludePath>
+    <LibraryPath>N:\Qt\6.6.3\msvc2019_64\lib;N:\GraphBuilder\libs;$(LibraryPath)</LibraryPath>
     <ExecutablePath>N:\Qt\6.6.3\msvc2019_64\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -128,12 +128,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>N:\Qt\6.6.3\msvc2019_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>N:\Qt\6.6.3\msvc2019_64\include;N:\GraphBuilder\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Qt6Core.lib;Qt6Gui.lib;Qt6Charts.lib;Qt6Widgets.lib;Qt6EntryPoint.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Qt6Core.lib;muparser.lib;Qt6Gui.lib;Qt6Charts.lib;Qt6Widgets.lib;Qt6EntryPoint.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

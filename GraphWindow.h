@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QComboBox>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
@@ -17,23 +16,21 @@ public:
     ~GraphWindow();
 
 private:
-    QChart* chart;                // График
-    QChartView* chartView;        // Представление графика
-    QLineSeries* series;          // Серия данных для графика
-    QLineEdit* inputX;            // Поле ввода значения x
-    QPushButton* updateButton;    // Кнопка для обновления значения x
-    QComboBox* functionSelector;  // Выпадающий список для выбора функции
-    QValueAxis* axisX;            // Ось X
-    QValueAxis* axisY;            // Ось Y
-    double xValue;                // Текущее значение X
-    int functionType;             // Выбранная функция: 0 - sin(x), 1 - cos(x), 2 - x (линейная)
+    QChart* chart = nullptr;
+    QChartView* chartView = nullptr;
+    QLineSeries* series = nullptr;
+    QLineEdit* functionInput = nullptr;
+    QPushButton* plotButton = nullptr;
+    QValueAxis* axisX = nullptr;
+    QValueAxis* axisY = nullptr;
+    QString userFunction;
 
 private:
-    void updateGraph();           // Метод для обновления графика
+    void updateGraph();                   // Метод для обновления графика
+    double evaluateExpression(double x);  // Вычисление значения функции
 
 private slots:
-    void updateXValue();          // Слот для обновления значения x
-    void updateFunction();        // Слот для выбора функции
+    void plotGraph();                     // Слот для построения графика
 };
 
 #endif // GRAPHWINDOW_H

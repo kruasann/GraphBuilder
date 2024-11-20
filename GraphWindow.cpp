@@ -1,9 +1,12 @@
 #include "GraphWindow.h"
-#include <cmath>
+#include <QtCharts>
 #include <QVBoxLayout>
+#include <QDebug>
+#include "muParser.h" // Подключаем muparser
 
 GraphWindow::GraphWindow(QWidget* parent)
-    : QMainWindow(parent), xValue(5.0), functionType(0) {
+    : QMainWindow(parent), userFunction("sin(x)") {
+
     // Создаем центральный виджет
     QWidget* centralWidget = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(centralWidget);
@@ -21,23 +24,16 @@ GraphWindow::GraphWindow(QWidget* parent)
     chartView->setRenderHint(QPainter::Antialiasing);
     layout->addWidget(chartView);
 
-    // Поле ввода значения x
-    inputX = new QLineEdit(this);
-    inputX->setPlaceholderText("Enter value x");
-    layout->addWidget(inputX);
+    // Поле ввода пользовательской функции
+    functionInput = new QLineEdit(this);
+    functionInput->setPlaceholderText("Enter function: e.g., y=sin(x), y=x^2");
+    functionInput->setText("y=sin(x)");
+    layout->addWidget(functionInput);
 
-    // Кнопка для обновления значения x
-    updateButton = new QPushButton("Reload", this);
-    layout->addWidget(updateButton);
-    connect(updateButton, &QPushButton::clicked, this, &GraphWindow::updateXValue);
-
-    // Выпадающий список для выбора функции
-    functionSelector = new QComboBox(this);
-    functionSelector->addItem("sin(x)");
-    functionSelector->addItem("cos(x)");
-    functionSelector->addItem("x (linear)");
-    layout->addWidget(functionSelector);
-    connect(functionSelector, &QComboBox::currentIndexChanged, this, &GraphWindow::updateFunction);
+    // Кнопка для построения графика
+    plotButton = new QPushButton("Plot", this);
+    layout->addWidget(plotButton);
+    connect(plotButton, &QPushButton::clicked, this, &GraphWindow::plotGraph);
 
     // Устанавливаем центральный виджет
     setCentralWidget(centralWidget);
@@ -48,87 +44,91 @@ GraphWindow::GraphWindow(QWidget* parent)
     axisX = new QValueAxis();
     axisY = new QValueAxis();
 
-    // Обновляем график
-    updateGraph();
+    // Инициализируем график
+    plotGraph();
 }
 
 GraphWindow::~GraphWindow() {
     // Все объекты автоматически удаляются
 }
 
-void GraphWindow::updateXValue() {
-    // Считываем значение из поля ввода
-    bool ok;
-    double newX = inputX->text().toDouble(&ok);
-    if (ok) {
-        xValue = newX;
-        updateGraph();
-    }
-    else {
-        inputX->setText("");
-        inputX->setPlaceholderText("Enter correct number!");
-    }
-}
+void GraphWindow::plotGraph() {
+    userFunction = functionInput->text().trimmed();
 
-void GraphWindow::updateFunction() {
-    // Обновляем тип функции
-    functionType = functionSelector->currentIndex();
+    if (userFunction.startsWith("y=")) {
+        userFunction = userFunction.mid(2).trimmed();
+    }
+
+    if (userFunction.isEmpty()) {
+        qDebug() << "Function input is empty.";
+        return;
+    }
+
+    // Проверяем, что выражение содержит переменную 'x'
+    if (!userFunction.contains("x")) {
+        qDebug() << "Function does not contain variable 'x'.";
+        return;
+    }
+
+    // Обновляем график
     updateGraph();
 }
 
-void GraphWindow::updateGraph() {
-    // Очищаем серию данных
-    series->clear();
 
-    // Очищаем оси графика
+void GraphWindow::updateGraph() {
+    series->clear();
     chart->removeAxis(axisX);
     chart->removeAxis(axisY);
-
-    // Добавляем серию данных
     chart->addSeries(series);
 
-    // Задаем шаг построения
     double step = 0.1;
 
-    // Добавляем точки для графика
+    QVector<QPointF> points;
+
     for (double x = -10; x <= 10; x += step) {
-        double y;
-        switch (functionType) {
-        case 0: y = std::sin(x); break;   // sin(x)
-        case 1: y = std::cos(x); break;   // cos(x)
-        case 2: y = x; break;             // Линейная функция x
-        default: y = 0;
-        }
-        series->append(x, y);
+        double y = evaluateExpression(x);
+        points.append(QPointF(x, y));
     }
 
-    // Создаем и настраиваем ось X
+    series->replace(points);
+
     axisX = new QValueAxis();
     axisX->setTitleText("X Axis");
     axisX->setRange(-10, 10);
-    axisX->setTickCount(21); // 21 отметка (по умолчанию равномерные)
+    axisX->setTickCount(21);
 
-    // Создаем и настраиваем ось Y
     axisY = new QValueAxis();
     axisY->setTitleText("Y Axis");
     axisY->setRange(-10, 10);
-    axisY->setTickCount(21); // 21 отметка
+    axisY->setTickCount(21);
 
-    // Добавляем оси к графику
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
 
-    // Привязываем оси к серии
     series->attachAxis(axisX);
     series->attachAxis(axisY);
 
-    // Выводим значение функции в точке xValue
-    double yValue;
-    switch (functionType) {
-    case 0: yValue = std::sin(xValue); break;
-    case 1: yValue = std::cos(xValue); break;
-    case 2: yValue = xValue; break;
-    default: yValue = 0;
+    chart->setTitle(QString("y=%1").arg(userFunction));
+}
+
+double GraphWindow::evaluateExpression(double x) {
+    try {
+        mu::Parser parser;
+
+        parser.DefineVar("x", &x);
+
+        std::string expr = userFunction.toUtf8().constData();
+
+        qDebug() << "Evaluating expression:" << QString::fromStdString(expr) << "with x=" << x;
+
+        parser.SetExpr(expr);
+
+        double result = parser.Eval();
+
+        return result;
     }
-    chart->setTitle(QString("f(%1) = %2").arg(xValue).arg(yValue));
+    catch (mu::Parser::exception_type& e) {
+        qDebug() << "Error evaluating expression:" << e.GetMsg().c_str();
+        return 0.0; // Ошибка: возвращаем 0
+    }
 }
