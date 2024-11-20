@@ -23,6 +23,7 @@ protected:
     void wheelEvent(QWheelEvent* event) override;    // Обработка колесика мыши
     void mousePressEvent(QMouseEvent* event) override; // Обработка нажатия мыши
     void mouseMoveEvent(QMouseEvent* event) override;  // Обработка перемещения мыши
+    void mouseReleaseEvent(QMouseEvent* event) override; // Обработка отпускания мыши
 
 private:
     QChart* chart = nullptr;
@@ -30,19 +31,23 @@ private:
     QLineSeries* series = nullptr;
     QScatterSeries* intersectionSeries = nullptr;
     QScatterSeries* hoverSeries = nullptr;
+    QLineSeries* xAxisZeroLine = nullptr;
+    QLineSeries* yAxisZeroLine = nullptr;
     QLineEdit* functionInput = nullptr;
     QPushButton* plotButton = nullptr;
     QValueAxis* axisX = nullptr;
     QValueAxis* axisY = nullptr;
     QString userFunction;
 
-    QPointF lastMousePos; // Последняя позиция мыши
+    QPoint lastMousePos; // Последняя позиция мыши
+    bool isLeftMousePressed = false;
 
 private:
     void updateGraph();                   // Метод для обновления графика
     void updateIntersections();           // Метод для поиска точек пересечения с осями
+    void updateZeroLines();               // Метод для обновления нулевых линий
     double evaluateExpression(double x);  // Вычисление значения функции
-    QPointF findClosestPoint(const QPointF& scenePos); // Метод для нахождения ближайшей точки
+    QPointF findClosestPoint(const QPointF& chartPos); // Метод для нахождения ближайшей точки
 
 private slots:
     void plotGraph();                     // Слот для построения графика
