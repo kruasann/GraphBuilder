@@ -2,27 +2,30 @@
 #define GRAPHWINDOW_H
 
 #include <QMainWindow>
-#include <QLineEdit>
-#include <QPushButton>
+#include <QList>
+#include <QColor>
+#include <QPointF>
+#include <QTimer>
+#include <QListWidgetItem>
+
+// Подключаем необходимые заголовочные файлы из модуля QtCharts с префиксом QtCharts/
 #include <QtCharts/QChartView>
+#include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QToolTip>
-#include <QTimer>
-#include <QColor>
-#include <QListWidget>
-#include <QCheckBox>
-#include <QSpinBox>
-#include <QMetaType>
 
+#include <QPushButton>
+#include <QListWidget>
+#include <QWheelEvent>
+#include <QMouseEvent>
+
+// Структура для хранения информации о функции
 struct FunctionItem {
-    QString expression;
-    QColor color;
-    QLineSeries* series;
-    bool visible;
+    QString expression;                       // Выражение функции
+    QColor color;                             // Цвет линии функции
+    QLineSeries* series;            // Серия данных для отображения на графике
+    bool visible;                             // Флаг видимости функции
 };
 Q_DECLARE_METATYPE(FunctionItem*)
 
@@ -34,10 +37,11 @@ public:
     ~GraphWindow();
 
 protected:
-    void wheelEvent(QWheelEvent* event) override;    // Handle mouse wheel events
-    void mousePressEvent(QMouseEvent* event) override; // Handle mouse press events
-    void mouseMoveEvent(QMouseEvent* event) override;  // Handle mouse move events
-    void mouseReleaseEvent(QMouseEvent* event) override; // Handle mouse release events
+    // Переопределяем обработчики событий для взаимодействия с мышью и колесом прокрутки
+    void wheelEvent(QWheelEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
     QChart* chart = nullptr;
@@ -52,26 +56,26 @@ private:
     QValueAxis* axisX = nullptr;
     QValueAxis* axisY = nullptr;
 
-    QPoint lastMousePos; // Last mouse position
+    QPoint lastMousePos; // Последняя позиция мыши
     bool isLeftMousePressed = false;
 
-    QTimer* updateTimer = nullptr; // Timer to throttle updates
-    int updateInterval = 50; // Update interval in milliseconds
+    QTimer* updateTimer = nullptr; // Таймер для обновления графика
+    int updateInterval = 50;       // Интервал обновления в миллисекундах
 
 private:
-    void updateGraph();                   // Update the graph
-    void updateIntersections();           // Find intersections between functions
-    void updateZeroLines();               // Update zero lines
-    double evaluateExpression(const QString& expression, double x);  // Evaluate a function
-    QPointF findClosestPoint(const QPointF& chartPos); // Find the closest data point
-    void addFunction(const QString& expression = "sin(x)"); // Add a new function
-    void removeFunction(int index);       // Remove a function
-    QColor getNextColor();                // Get the next color for a new function
+    void updateGraph();                   // Обновление графика
+    void updateIntersections();           // Обнаружение пересечений функций
+    void updateZeroLines();               // Обновление нулевых линий осей
+    double evaluateExpression(const QString& expression, double x, bool& ok);  // Вычисление значения функции
+    QPointF findClosestPoint(const QPointF& chartPos); // Поиск ближайшей точки на графике
+    void addFunction(const QString& expression = "sin(x)"); // Добавление новой функции
+    void removeFunction(int index);       // Удаление функции
+    QColor getNextColor();                // Получение следующего цвета для функции
 
 private slots:
-    void onAddFunctionClicked();          // Slot to add a function
-    void onFunctionItemChanged(QListWidgetItem* item); // Slot when a function item is changed
-    void onAxisRangeChanged();            // Slot for axis range changes
+    void onAddFunctionClicked();          // Слот для добавления функции
+    void onFunctionItemChanged(QListWidgetItem* item); // Слот при изменении функции
+    void onAxisRangeChanged();            // Слот при изменении диапазона осей
 };
 
 #endif // GRAPHWINDOW_H

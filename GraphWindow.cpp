@@ -1,49 +1,58 @@
 #include "GraphWindow.h"
-#include <QtCharts/QChart>
+
+#include <QtCharts/QChartView>
 #include <QtCharts/QValueAxis>
+#include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QToolTip>
 #include <QColorDialog>
+#include <QListWidget>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QMessageBox>
+
 #include "muParser.h"
-#include <algorithm> // For std::max
-#include <QListWidgetItem>
+
+#include <algorithm> // Для std::max
 
 GraphWindow::GraphWindow(QWidget* parent)
     : QMainWindow(parent) {
 
     qRegisterMetaType<FunctionItem*>("FunctionItem*");
 
-    // Create central widget
+    // Создаем центральный виджет и основной макет
     QWidget* centralWidget = new QWidget(this);
     QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
 
-    // Left side: function list and controls
+    // Левая часть: список функций и кнопки управления
     QWidget* leftWidget = new QWidget(this);
     QVBoxLayout* leftLayout = new QVBoxLayout(leftWidget);
 
-    // Function list
+    // Список функций
     functionListWidget = new QListWidget(this);
     leftLayout->addWidget(functionListWidget);
 
-    // Add function button
+    // Кнопка добавления функции
     addFunctionButton = new QPushButton("Add Function", this);
     leftLayout->addWidget(addFunctionButton);
     connect(addFunctionButton, &QPushButton::clicked, this, &GraphWindow::onAddFunctionClicked);
 
     mainLayout->addWidget(leftWidget);
 
-    // Right side: chart
+    // Правая часть: график
     QWidget* rightWidget = new QWidget(this);
     QVBoxLayout* rightLayout = new QVBoxLayout(rightWidget);
 
-    // Create the chart
+    // Создаем график
     chart = new QChart();
     chart->setTitle("Graph Viewer");
 
-    // Create intersection and hover series
+    // Создаем серии для пересечений и наведения
     intersectionSeries = new QScatterSeries();
     intersectionSeries->setMarkerShape(QScatterSeries::MarkerShapeCircle);
     intersectionSeries->setMarkerSize(10.0);
@@ -57,7 +66,7 @@ GraphWindow::GraphWindow(QWidget* parent)
     chart->addSeries(intersectionSeries);
     chart->addSeries(hoverSeries);
 
-    // Create zero lines
+    // Создаем нулевые линии осей
     xAxisZeroLine = new QLineSeries();
     yAxisZeroLine = new QLineSeries();
     xAxisZeroLine->setPen(QPen(Qt::black));
@@ -65,19 +74,19 @@ GraphWindow::GraphWindow(QWidget* parent)
     chart->addSeries(xAxisZeroLine);
     chart->addSeries(yAxisZeroLine);
 
-    // Configure the chart view
+    // Настраиваем отображение графика
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     rightLayout->addWidget(chartView);
 
     mainLayout->addWidget(rightWidget);
 
-    // Set central widget
+    // Устанавливаем центральный виджет
     setCentralWidget(centralWidget);
     setWindowTitle("Qt Charts Graph Viewer");
     resize(1000, 600);
 
-    // Create axes
+    // Создаем оси
     axisX = new QValueAxis();
     axisX->setTitleText("X Axis");
     axisX->setRange(-10, 10);
@@ -98,24 +107,24 @@ GraphWindow::GraphWindow(QWidget* parent)
     yAxisZeroLine->attachAxis(axisX);
     yAxisZeroLine->attachAxis(axisY);
 
-    // Initialize the update timer
+    // Инициализируем таймер обновления
     updateTimer = new QTimer(this);
     updateTimer->setSingleShot(true);
     connect(updateTimer, &QTimer::timeout, this, &GraphWindow::updateGraph);
 
-    // Connect axis range changed signals
+    // Подключаем сигналы изменения диапазона осей
     connect(axisX, &QValueAxis::rangeChanged, this, &GraphWindow::onAxisRangeChanged);
     connect(axisY, &QValueAxis::rangeChanged, this, &GraphWindow::onAxisRangeChanged);
 
-    // Connect function list item changes
+    // Подключаем изменения в списке функций
     connect(functionListWidget, &QListWidget::itemChanged, this, &GraphWindow::onFunctionItemChanged);
 
-    // Initialize with one function
+    // Инициализируем с одной функцией
     addFunction();
 }
 
 GraphWindow::~GraphWindow() {
-    // Clean up function items
+    // Очищаем функции
     qDeleteAll(functions);
 }
 
@@ -133,17 +142,67 @@ void GraphWindow::addFunction(const QString& expression) {
 
     functions.append(func);
 
-    // Add to the function list widget
+    // Добавляем функцию в список функций с элементами управления
     QListWidgetItem* item = new QListWidgetItem(functionListWidget);
-    item->setFlags(item->flags() | Qt::ItemIsEditable | Qt::ItemIsUserCheckable);
-    item->setText(func->expression);
-    item->setCheckState(Qt::Checked);
+    item->setFlags(item->flags() | Qt::ItemIsSelectable);
     item->setData(Qt::UserRole, QVariant::fromValue(func));
 
-    // Set item color
-    item->setForeground(func->color);
-}
+    QWidget* itemWidget = new QWidget();
+    QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
+    itemLayout->setContentsMargins(0, 0, 0, 0);
 
+    // Чекбокс для видимости функции
+    QCheckBox* checkBox = new QCheckBox();
+    checkBox->setChecked(true);
+
+    // Поле ввода для выражения функции
+    QLineEdit* expressionEdit = new QLineEdit(func->expression);
+
+    // Кнопка выбора цвета
+    QPushButton* colorButton = new QPushButton();
+    colorButton->setFixedSize(20, 20);
+    colorButton->setStyleSheet(QString("background-color: %1").arg(func->color.name()));
+
+    // Кнопка удаления функции
+    QPushButton* removeButton = new QPushButton("X");
+    removeButton->setFixedSize(20, 20);
+
+    itemLayout->addWidget(checkBox);
+    itemLayout->addWidget(expressionEdit);
+    itemLayout->addWidget(colorButton);
+    itemLayout->addWidget(removeButton);
+
+    item->setSizeHint(itemWidget->sizeHint());
+    functionListWidget->setItemWidget(item, itemWidget);
+
+    // Подключаем сигналы к элементам управления функции
+    connect(checkBox, &QCheckBox::stateChanged, [this, func](int state) {
+        func->visible = (state == Qt::Checked);
+        func->series->setVisible(func->visible);
+        updateGraph();
+        });
+
+    connect(expressionEdit, &QLineEdit::editingFinished, [this, func, expressionEdit]() {
+        func->expression = expressionEdit->text();
+        updateGraph();
+        });
+
+    connect(colorButton, &QPushButton::clicked, [this, func, colorButton]() {
+        QColor color = QColorDialog::getColor(func->color, this, "Select Function Color");
+        if (color.isValid()) {
+            func->color = color;
+            func->series->setColor(color);
+            colorButton->setStyleSheet(QString("background-color: %1").arg(color.name()));
+        }
+        });
+
+    connect(removeButton, &QPushButton::clicked, [this, func]() {
+        int index = functions.indexOf(func);
+        if (index != -1) {
+            removeFunction(index);
+        }
+        });
+}
 
 void GraphWindow::removeFunction(int index) {
     if (index < 0 || index >= functions.size())
@@ -151,21 +210,26 @@ void GraphWindow::removeFunction(int index) {
 
     FunctionItem* func = functions.at(index);
 
-    // Remove from chart
+    // Удаляем серию с графика
     chart->removeSeries(func->series);
     delete func->series;
 
-    // Remove from list
+    // Удаляем из списка функций
     functions.removeAt(index);
     delete func;
 
-    // Remove from function list widget
+    // Удаляем элемент из списка виджета
     delete functionListWidget->takeItem(index);
+
+    updateGraph();
 }
 
 QColor GraphWindow::getNextColor() {
     static int colorIndex = 0;
-    static QList<QColor> colors = { Qt::blue, Qt::green, Qt::magenta, Qt::cyan, Qt::darkYellow };
+    static QList<QColor> colors = {
+        Qt::blue, Qt::green, Qt::magenta, Qt::cyan, Qt::darkYellow,
+        Qt::darkRed, Qt::darkCyan, Qt::darkMagenta, Qt::darkGreen
+    };
     QColor color = colors.at(colorIndex % colors.size());
     colorIndex++;
     return color;
@@ -177,55 +241,77 @@ void GraphWindow::onAddFunctionClicked() {
 }
 
 void GraphWindow::onFunctionItemChanged(QListWidgetItem* item) {
+    // Обработчик изменений в элементе списка функций
     FunctionItem* func = item->data(Qt::UserRole).value<FunctionItem*>();
     if (!func) {
         qDebug() << "Error: FunctionItem pointer is null.";
         return;
     }
 
-    func->expression = item->text();
-    func->visible = (item->checkState() == Qt::Checked);
-
-    // Show or hide the series
-    func->series->setVisible(func->visible);
-
+    // Обновляем состояние функции и графика
     updateGraph();
 }
 
 void GraphWindow::updateGraph() {
-    // Clear intersection and hover series
+    // Очищаем серии пересечений и наведения
     intersectionSeries->clear();
     hoverSeries->clear();
 
-    // Get current axis ranges
+    // Получаем текущие диапазоны осей
     double xMin = axisX->min();
     double xMax = axisX->max();
 
-    // Determine the number of points based on the current axis range
-    double pixelsPerPoint = 1.0; // Adjust this value as needed
+    // Определяем количество точек на основе текущего диапазона оси X
+    double pixelsPerPoint = 1.0; // Можно настроить для оптимизации
     double axisWidthInPixels = chartView->size().width();
     int numPoints = std::max(static_cast<int>((axisWidthInPixels / pixelsPerPoint)), 500);
 
     double step = (xMax - xMin) / numPoints;
 
-    // Evaluate each function
+    // Флаг для отслеживания ошибок разбора функций
+    bool parsingSuccess = true;
+
+    // Вычисляем значения каждой функции
     for (FunctionItem* func : functions) {
         if (!func->visible)
             continue;
 
         QVector<QPointF> points;
+        bool funcParsingSuccess = true;
 
         for (double x = xMin; x <= xMax; x += step) {
-            double y = evaluateExpression(func->expression, x);
+            bool ok;
+            double y = evaluateExpression(func->expression, x, ok);
+            if (!ok) {
+                funcParsingSuccess = false;
+                break;
+            }
             if (std::isnan(y) || std::isinf(y))
                 continue;
             points.append(QPointF(x, y));
         }
 
+        int index = functions.indexOf(func);
+        QListWidgetItem* item = functionListWidget->item(index);
+
+        if (!funcParsingSuccess) {
+            parsingSuccess = false;
+            // Выделяем элемент функции красным цветом
+            item->setBackground(Qt::red);
+        }
+        else {
+            // Возвращаем стандартный фон
+            item->setBackground(Qt::white);
+        }
+
         func->series->replace(points);
     }
 
-    // Update intersections and zero lines
+    if (!parsingSuccess) {
+        QMessageBox::warning(this, "Parsing Error", "One or more functions could not be parsed. Please check your expressions.");
+    }
+
+    // Обновляем пересечения и нулевые линии
     updateIntersections();
     updateZeroLines();
 }
@@ -233,7 +319,7 @@ void GraphWindow::updateGraph() {
 void GraphWindow::updateIntersections() {
     intersectionSeries->clear();
 
-    // Compare each pair of functions
+    // Для каждой пары функций
     for (int i = 0; i < functions.size(); ++i) {
         FunctionItem* func1 = functions.at(i);
         if (!func1->visible)
@@ -244,47 +330,34 @@ void GraphWindow::updateIntersections() {
             if (!func2->visible)
                 continue;
 
-            // Find intersections between func1 and func2
+            // Предполагаем, что обе функции имеют одинаковое количество точек
             const auto& points1 = func1->series->points();
             const auto& points2 = func2->series->points();
+            int numPoints = std::min(points1.size(), points2.size());
 
-            int index1 = 0;
-            int index2 = 0;
+            for (int k = 0; k < numPoints - 1; ++k) {
+                double x1 = points1.at(k).x();
+                double y1 = points1.at(k).y();
+                double y2 = points2.at(k).y();
 
-            while (index1 < points1.size() - 1 && index2 < points2.size() - 1) {
-                double x1 = points1.at(index1).x();
-                double x2 = points2.at(index2).x();
+                double x2 = points1.at(k + 1).x();
+                double y1_next = points1.at(k + 1).y();
+                double y2_next = points2.at(k + 1).y();
 
-                if (std::abs(x1 - x2) < 1e-6) {
-                    double y1 = points1.at(index1).y();
-                    double y2 = points2.at(index2).y();
-                    double y1_next = points1.at(index1 + 1).y();
-                    double y2_next = points2.at(index2 + 1).y();
-
-                    // Check if y-values cross between these points
-                    if ((y1 - y2) * (y1_next - y2_next) < 0) {
-                        // Estimate intersection point
-                        double t = (y2 - y1) / ((y1_next - y1) - (y2_next - y2));
-                        double xIntersect = x1 + t * (points1.at(index1 + 1).x() - x1);
-                        double yIntersect = y1 + t * (y1_next - y1);
-
-                        intersectionSeries->append(xIntersect, yIntersect);
-                    }
-
-                    index1++;
-                    index2++;
-                }
-                else if (x1 < x2) {
-                    index1++;
-                }
-                else {
-                    index2++;
+                // Проверяем, пересекаются ли функции между этими точками
+                double f1 = y1 - y2;
+                double f2 = y1_next - y2_next;
+                if (f1 * f2 < 0) {
+                    // Оцениваем точку пересечения
+                    double t = f1 / (f1 - f2);
+                    double xIntersect = x1 + t * (x2 - x1);
+                    double yIntersect = y1 + t * (y1_next - y1);
+                    intersectionSeries->append(xIntersect, yIntersect);
                 }
             }
         }
     }
 }
-
 
 void GraphWindow::updateZeroLines() {
     double xMin = axisX->min();
@@ -306,15 +379,18 @@ void GraphWindow::updateZeroLines() {
     }
 }
 
-double GraphWindow::evaluateExpression(const QString& expression, double x) {
+double GraphWindow::evaluateExpression(const QString& expression, double x, bool& ok) {
     try {
         mu::Parser parser;
         parser.DefineVar("x", &x);
         parser.SetExpr(expression.toUtf8().constData());
-        return parser.Eval();
+        double result = parser.Eval();
+        ok = true;
+        return result;
     }
     catch (mu::Parser::exception_type& e) {
         // qDebug() << "Error evaluating expression:" << e.GetMsg().c_str();
+        ok = false;
         return std::numeric_limits<double>::quiet_NaN();
     }
 }
@@ -343,7 +419,7 @@ QPointF GraphWindow::findClosestPoint(const QPointF& chartPos) {
     QPointF closestPoint;
     double minDistance = std::numeric_limits<double>::max();
 
-    // Iterate over all functions
+    // Проходим по всем функциям
     for (FunctionItem* func : functions) {
         if (!func->visible)
             continue;
@@ -398,6 +474,6 @@ void GraphWindow::mouseReleaseEvent(QMouseEvent* event) {
 }
 
 void GraphWindow::onAxisRangeChanged() {
-    // Start or restart the timer
+    // Запускаем или перезапускаем таймер обновления
     updateTimer->start(updateInterval);
 }
