@@ -1,4 +1,3 @@
-// GraphWindow.cpp
 #include "GraphWindow.h"
 #include "CustomChartView.h"
 
@@ -48,6 +47,9 @@ GraphWindow::GraphWindow(QWidget* parent)
     connect(functionListWidget, &QListWidget::customContextMenuRequested, this, &GraphWindow::onFunctionListContextMenu);
     connect(functionListWidget, &QListWidget::itemChanged, this, &GraphWindow::onFunctionItemChanged);
     connect(functionListWidget->model(), &QAbstractItemModel::rowsMoved, this, &GraphWindow::updateGraph);
+
+    // Добавим обработку двойного клика для редактирования функции
+    connect(functionListWidget, &QListWidget::itemDoubleClicked, this, &GraphWindow::editFunctionByItem);
 
     // Кнопка добавления функции
     addFunctionButton = new QPushButton(QIcon(":/icons/add.png"), tr("Add function"), this);
@@ -320,17 +322,20 @@ void GraphWindow::updateGraph() {
             parsingSuccess = false;
             // Выделяем элемент функции красным цветом
             item->setBackground(QColor("#FFCCCC"));
+            item->setToolTip(tr("Error parsing expression: %1").arg(func->expression));
         }
         else {
             // Возвращаем стандартный фон
             item->setBackground(Qt::white);
+            item->setToolTip("");
         }
 
         func->series->replace(points);
     }
 
     if (!parsingSuccess) {
-        QMessageBox::warning(this, tr("Parsing error"), tr("One or more functions could not be parsed. Please check your expressions."));
+        // QMessageBox::warning(this, tr("Parsing error"), tr("One or more functions could not be parsed. Please check your expressions."));
+        // Обновление подсказок уже выполнено выше
     }
 
     // Обновляем пересечения и нулевые линии
@@ -458,6 +463,29 @@ void GraphWindow::saveGraph() {
     }
 }
 
+void GraphWindow::onFunctionListContextMenu(const QPoint& pos) {
+    QListWidgetItem* item = functionListWidget->itemAt(pos);
+    if (item) {
+        QMenu contextMenu(this);
+        QAction* removeAction = contextMenu.addAction(tr("Delete function"));
+        QAction* editAction = contextMenu.addAction(tr("Edit function"));
+        QAction* changeColorAction = contextMenu.addAction(tr("Change color"));
+        QAction* selectedAction = contextMenu.exec(functionListWidget->viewport()->mapToGlobal(pos));
+        if (selectedAction == removeAction) {
+            int index = functionListWidget->row(item);
+            removeFunction(index);
+        }
+        else if (selectedAction == editAction) {
+            int index = functionListWidget->row(item);
+            editFunction(index);
+        }
+        else if (selectedAction == changeColorAction) {
+            int index = functionListWidget->row(item);
+            changeFunctionColor(index);
+        }
+    }
+}
+
 void GraphWindow::editFunction(int index) {
     if (index < 0 || index >= functions.size())
         return;
@@ -509,26 +537,10 @@ void GraphWindow::changeFunctionColor(int index) {
     }
 }
 
+void GraphWindow::editFunctionByItem(QListWidgetItem* item) {
+    if (!item)
+        return;
 
-void GraphWindow::onFunctionListContextMenu(const QPoint& pos) {
-    QListWidgetItem* item = functionListWidget->itemAt(pos);
-    if (item) {
-        QMenu contextMenu(this);
-        QAction* removeAction = contextMenu.addAction(tr("Delete function"));
-        QAction* editAction = contextMenu.addAction(tr("Edit function"));
-        QAction* changeColorAction = contextMenu.addAction(tr("Change color")); // Новая опция
-        QAction* selectedAction = contextMenu.exec(functionListWidget->viewport()->mapToGlobal(pos));
-        if (selectedAction == removeAction) {
-            int index = functionListWidget->row(item);
-            removeFunction(index);
-        }
-        else if (selectedAction == editAction) {
-            int index = functionListWidget->row(item);
-            editFunction(index);
-        }
-        else if (selectedAction == changeColorAction) {
-            int index = functionListWidget->row(item);
-            changeFunctionColor(index);
-        }
-    }
+    int index = functionListWidget->row(item);
+    editFunction(index);
 }

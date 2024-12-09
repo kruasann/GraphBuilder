@@ -2,5 +2,5 @@ N:\GraphBuilder\CustomChartView.cpp;N:\GraphBuilder\x64\Debug\CustomChartView.ob
 N:\GraphBuilder\GraphWindow.cpp;N:\GraphBuilder\x64\Debug\GraphWindow.obj
 N:\GraphBuilder\main.cpp;N:\GraphBuilder\x64\Debug\main.obj
 N:\GraphBuilder\x64\Debug\qt\rcc\qrc_resources.cpp;N:\GraphBuilder\x64\Debug\qrc_resources.obj
-N:\GraphBuilder\x64\Debug\qt\moc\moc_GraphWindow.cpp;N:\GraphBuilder\x64\Debug\moc_GraphWindow.obj
 N:\GraphBuilder\x64\Debug\qt\moc\moc_CustomChartView.cpp;N:\GraphBuilder\x64\Debug\moc_CustomChartView.obj
+N:\GraphBuilder\x64\Debug\qt\moc\moc_GraphWindow.cpp;N:\GraphBuilder\x64\Debug\moc_GraphWindow.obj

@@ -1,4 +1,3 @@
-// GraphWindow.h
 #ifndef GRAPHWINDOW_H
 #define GRAPHWINDOW_H
 
@@ -83,10 +82,13 @@ private slots:
     void onFunctionItemChanged(QListWidgetItem* item); // Слот при изменении функции
     void onAxisRangeChanged();            // Слот при изменении диапазона осей
     void saveGraph();
-    void editFunction(int index);
-    void changeFunctionColor(int index);
     void onFunctionListContextMenu(const QPoint& pos); // Слот для контекстного меню
     void updateMouseCoordinates(double x, double y);    // Слот для обновления координат мыши
+
+    // Новые слоты
+    void editFunction(int index);         // Слот для редактирования функции
+    void changeFunctionColor(int index);  // Слот для изменения цвета функции
+    void editFunctionByItem(QListWidgetItem* item); // Слот для редактирования функции через двойной клик
 };
 
 #endif // GRAPHWINDOW_H

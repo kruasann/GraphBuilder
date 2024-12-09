@@ -47,18 +47,19 @@ constexpr auto qt_meta_stringdata_CLASSGraphWindowENDCLASS = QtMocHelpers::strin
     "item",
     "onAxisRangeChanged",
     "saveGraph",
-    "editFunction",
-    "index",
-    "changeFunctionColor",
     "onFunctionListContextMenu",
     "pos",
     "updateMouseCoordinates",
     "x",
-    "y"
+    "y",
+    "editFunction",
+    "index",
+    "changeFunctionColor",
+    "editFunctionByItem"
 );
 #else  // !QT_MOC_HAS_STRING_DATA
 struct qt_meta_stringdata_CLASSGraphWindowENDCLASS_t {
-    uint offsetsAndSizes[34];
+    uint offsetsAndSizes[36];
     char stringdata0[12];
     char stringdata1[21];
     char stringdata2[1];
@@ -68,14 +69,15 @@ struct qt_meta_stringdata_CLASSGraphWindowENDCLASS_t {
     char stringdata6[5];
     char stringdata7[19];
     char stringdata8[10];
-    char stringdata9[13];
-    char stringdata10[6];
-    char stringdata11[20];
-    char stringdata12[26];
-    char stringdata13[4];
-    char stringdata14[23];
-    char stringdata15[2];
-    char stringdata16[2];
+    char stringdata9[26];
+    char stringdata10[4];
+    char stringdata11[23];
+    char stringdata12[2];
+    char stringdata13[2];
+    char stringdata14[13];
+    char stringdata15[6];
+    char stringdata16[20];
+    char stringdata17[19];
 };
 #define QT_MOC_LITERAL(ofs, len) \
     uint(sizeof(qt_meta_stringdata_CLASSGraphWindowENDCLASS_t::offsetsAndSizes) + ofs), len 
@@ -90,14 +92,15 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSGraphWindowENDCLASS_t qt_meta_s
         QT_MOC_LITERAL(98, 4),  // "item"
         QT_MOC_LITERAL(103, 18),  // "onAxisRangeChanged"
         QT_MOC_LITERAL(122, 9),  // "saveGraph"
-        QT_MOC_LITERAL(132, 12),  // "editFunction"
-        QT_MOC_LITERAL(145, 5),  // "index"
-        QT_MOC_LITERAL(151, 19),  // "changeFunctionColor"
-        QT_MOC_LITERAL(171, 25),  // "onFunctionListContextMenu"
-        QT_MOC_LITERAL(197, 3),  // "pos"
-        QT_MOC_LITERAL(201, 22),  // "updateMouseCoordinates"
-        QT_MOC_LITERAL(224, 1),  // "x"
-        QT_MOC_LITERAL(226, 1)   // "y"
+        QT_MOC_LITERAL(132, 25),  // "onFunctionListContextMenu"
+        QT_MOC_LITERAL(158, 3),  // "pos"
+        QT_MOC_LITERAL(162, 22),  // "updateMouseCoordinates"
+        QT_MOC_LITERAL(185, 1),  // "x"
+        QT_MOC_LITERAL(187, 1),  // "y"
+        QT_MOC_LITERAL(189, 12),  // "editFunction"
+        QT_MOC_LITERAL(202, 5),  // "index"
+        QT_MOC_LITERAL(208, 19),  // "changeFunctionColor"
+        QT_MOC_LITERAL(228, 18)   // "editFunctionByItem"
     },
     "GraphWindow",
     "onAddFunctionClicked",
@@ -108,14 +111,15 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSGraphWindowENDCLASS_t qt_meta_s
     "item",
     "onAxisRangeChanged",
     "saveGraph",
-    "editFunction",
-    "index",
-    "changeFunctionColor",
     "onFunctionListContextMenu",
     "pos",
     "updateMouseCoordinates",
     "x",
-    "y"
+    "y",
+    "editFunction",
+    "index",
+    "changeFunctionColor",
+    "editFunctionByItem"
 };
 #undef QT_MOC_LITERAL
 #endif // !QT_MOC_HAS_STRING_DATA
@@ -127,7 +131,7 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSGraphWindowENDCLASS[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -135,15 +139,16 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSGraphWindowENDCLASS[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   68,    2, 0x08,    1 /* Private */,
-       3,    0,   69,    2, 0x08,    2 /* Private */,
-       4,    1,   70,    2, 0x08,    3 /* Private */,
-       7,    0,   73,    2, 0x08,    5 /* Private */,
-       8,    0,   74,    2, 0x08,    6 /* Private */,
-       9,    1,   75,    2, 0x08,    7 /* Private */,
-      11,    1,   78,    2, 0x08,    9 /* Private */,
-      12,    1,   81,    2, 0x08,   11 /* Private */,
-      14,    2,   84,    2, 0x08,   13 /* Private */,
+       1,    0,   74,    2, 0x08,    1 /* Private */,
+       3,    0,   75,    2, 0x08,    2 /* Private */,
+       4,    1,   76,    2, 0x08,    3 /* Private */,
+       7,    0,   79,    2, 0x08,    5 /* Private */,
+       8,    0,   80,    2, 0x08,    6 /* Private */,
+       9,    1,   81,    2, 0x08,    7 /* Private */,
+      11,    2,   84,    2, 0x08,    9 /* Private */,
+      14,    1,   89,    2, 0x08,   12 /* Private */,
+      16,    1,   92,    2, 0x08,   14 /* Private */,
+      17,    1,   95,    2, 0x08,   16 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -151,10 +156,11 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSGraphWindowENDCLASS[] = {
     QMetaType::Void, 0x80000000 | 5,    6,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,   10,
-    QMetaType::Void, QMetaType::Int,   10,
-    QMetaType::Void, QMetaType::QPoint,   13,
-    QMetaType::Void, QMetaType::Double, QMetaType::Double,   15,   16,
+    QMetaType::Void, QMetaType::QPoint,   10,
+    QMetaType::Void, QMetaType::Double, QMetaType::Double,   12,   13,
+    QMetaType::Void, QMetaType::Int,   15,
+    QMetaType::Void, QMetaType::Int,   15,
+    QMetaType::Void, 0x80000000 | 5,    6,
 
        0        // eod
 };
@@ -179,19 +185,22 @@ Q_CONSTINIT const QMetaObject GraphWindow::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'saveGraph'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'editFunction'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'changeFunctionColor'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
         // method 'onFunctionListContextMenu'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<const QPoint &, std::false_type>,
         // method 'updateMouseCoordinates'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<double, std::false_type>,
-        QtPrivate::TypeAndForceComplete<double, std::false_type>
+        QtPrivate::TypeAndForceComplete<double, std::false_type>,
+        // method 'editFunction'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>,
+        // method 'changeFunctionColor'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>,
+        // method 'editFunctionByItem'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<QListWidgetItem *, std::false_type>
     >,
     nullptr
 } };
@@ -207,10 +216,11 @@ void GraphWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         case 2: _t->onFunctionItemChanged((*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
         case 3: _t->onAxisRangeChanged(); break;
         case 4: _t->saveGraph(); break;
-        case 5: _t->editFunction((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 6: _t->changeFunctionColor((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 7: _t->onFunctionListContextMenu((*reinterpret_cast< std::add_pointer_t<QPoint>>(_a[1]))); break;
-        case 8: _t->updateMouseCoordinates((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[2]))); break;
+        case 5: _t->onFunctionListContextMenu((*reinterpret_cast< std::add_pointer_t<QPoint>>(_a[1]))); break;
+        case 6: _t->updateMouseCoordinates((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[2]))); break;
+        case 7: _t->editFunction((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 8: _t->changeFunctionColor((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 9: _t->editFunctionByItem((*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
         default: ;
         }
     }
@@ -235,13 +245,13 @@ int GraphWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 10;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 9)
+        if (_id < 10)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 9;
+        _id -= 10;
     }
     return _id;
 }
