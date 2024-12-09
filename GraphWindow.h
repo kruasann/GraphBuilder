@@ -83,6 +83,8 @@ private slots:
     void onFunctionItemChanged(QListWidgetItem* item); // Слот при изменении функции
     void onAxisRangeChanged();            // Слот при изменении диапазона осей
     void saveGraph();
+    void editFunction(int index);
+    void changeFunctionColor(int index);
     void onFunctionListContextMenu(const QPoint& pos); // Слот для контекстного меню
     void updateMouseCoordinates(double x, double y);    // Слот для обновления координат мыши
 };

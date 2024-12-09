@@ -458,15 +458,77 @@ void GraphWindow::saveGraph() {
     }
 }
 
+void GraphWindow::editFunction(int index) {
+    if (index < 0 || index >= functions.size())
+        return;
+
+    FunctionItem* func = functions.at(index);
+    if (!func)
+        return;
+
+    bool ok;
+    QString newExpression = QInputDialog::getText(this, tr("Edit function"),
+        tr("Enter new function expression:"), QLineEdit::Normal,
+        func->expression, &ok);
+    if (ok && !newExpression.isEmpty()) {
+        func->expression = newExpression;
+        func->series->setName(func->expression);
+
+        // Обновляем текст в QListWidgetItem
+        QListWidgetItem* item = functionListWidget->item(index);
+        if (item) {
+            item->setText(func->expression);
+        }
+
+        updateGraph();
+    }
+}
+
+void GraphWindow::changeFunctionColor(int index) {
+    if (index < 0 || index >= functions.size())
+        return;
+
+    FunctionItem* func = functions.at(index);
+    if (!func)
+        return;
+
+    QColor newColor = QColorDialog::getColor(func->color, this, tr("Select Function Color"));
+    if (newColor.isValid()) {
+        func->color = newColor;
+        func->series->setColor(func->color);
+
+        // Обновляем иконку цвета в QListWidgetItem
+        QListWidgetItem* item = functionListWidget->item(index);
+        if (item) {
+            QPixmap colorPixmap(20, 20);
+            colorPixmap.fill(func->color);
+            item->setIcon(QIcon(colorPixmap));
+        }
+
+        updateGraph();
+    }
+}
+
+
 void GraphWindow::onFunctionListContextMenu(const QPoint& pos) {
     QListWidgetItem* item = functionListWidget->itemAt(pos);
     if (item) {
         QMenu contextMenu(this);
         QAction* removeAction = contextMenu.addAction(tr("Delete function"));
+        QAction* editAction = contextMenu.addAction(tr("Edit function"));
+        QAction* changeColorAction = contextMenu.addAction(tr("Change color")); // Новая опция
         QAction* selectedAction = contextMenu.exec(functionListWidget->viewport()->mapToGlobal(pos));
         if (selectedAction == removeAction) {
             int index = functionListWidget->row(item);
             removeFunction(index);
+        }
+        else if (selectedAction == editAction) {
+            int index = functionListWidget->row(item);
+            editFunction(index);
+        }
+        else if (selectedAction == changeColorAction) {
+            int index = functionListWidget->row(item);
+            changeFunctionColor(index);
         }
     }
 }
