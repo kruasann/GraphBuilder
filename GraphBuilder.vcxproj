@@ -154,7 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GraphCanvas.cpp" />
+    <ClCompile Include="CustomChartView.cpp" />
     <ClCompile Include="GraphWindow.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).moc</QtMocFileName>
@@ -169,7 +169,12 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GraphWindow.h" />
-    <QtMoc Include="GraphCanvas.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="CustomChartView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources.qrc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />

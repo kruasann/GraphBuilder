@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphCanvas.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="GraphWindow.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomChartView.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,8 +29,13 @@
     <QtMoc Include="GraphWindow.h">
       <Filter>Файлы заголовков</Filter>
     </QtMoc>
-    <QtMoc Include="GraphCanvas.h">
+    <QtMoc Include="CustomChartView.h">
       <Filter>Файлы заголовков</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources.qrc">
+      <Filter>Файлы ресурсов</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>
