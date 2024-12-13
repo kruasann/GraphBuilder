@@ -133,7 +133,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Qt6Core.lib;muparser.lib;Qt6Gui.lib;Qt6Charts.lib;Qt6Widgets.lib;Qt6EntryPoint.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Qt6Cored.lib;muparser.lib;Qt6Guid.lib;Qt6Chartsd.lib;Qt6Widgetsd.lib;Qt6EntryPointd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

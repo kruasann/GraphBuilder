@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
     <ClCompile>
-      <AdditionalIncludeDirectories>N:\GraphBuilder\x64\Debug\qt\qmake;N:\Qt\6.6.3\msvc2019_64\include;N:\Qt\6.6.3\msvc2019_64\include\QtCharts;N:\Qt\6.6.3\msvc2019_64\include\QtOpenGLWidgets;N:\Qt\6.6.3\msvc2019_64\include\QtWidgets;N:\Qt\6.6.3\msvc2019_64\include\QtOpenGL;N:\Qt\6.6.3\msvc2019_64\include\QtGui;N:\Qt\6.6.3\msvc2019_64\include\QtCore;N:\GraphBuilder\x64\Debug\qt\qmake;/include;N:\Qt\6.6.3\msvc2019_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>N:\gb\GraphBuilder\x64\Debug\qt\qmake;N:\Qt\6.6.3\msvc2019_64\include;N:\Qt\6.6.3\msvc2019_64\include\QtCharts;N:\Qt\6.6.3\msvc2019_64\include\QtOpenGLWidgets;N:\Qt\6.6.3\msvc2019_64\include\QtWidgets;N:\Qt\6.6.3\msvc2019_64\include\QtOpenGL;N:\Qt\6.6.3\msvc2019_64\include\QtGui;N:\Qt\6.6.3\msvc2019_64\include\QtCore;N:\gb\GraphBuilder\x64\Debug\qt\qmake;/include;N:\Qt\6.6.3\msvc2019_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -permissive- -Zc:__cplusplus -Zc:externConstexpr -utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>.\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>

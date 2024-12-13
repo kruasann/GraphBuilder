@@ -1,1 +1,2 @@
 N:\GraphBuilder\x64\Debug\GraphBuilder.exe
+N:\gb\GraphBuilder\x64\Debug\GraphBuilder.exe
