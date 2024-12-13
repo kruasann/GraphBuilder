@@ -6,6 +6,7 @@
 #include <QtCharts/QScatterSeries>
 
 #include <QVBoxLayout>
+#include <QGraphicsGridLayout>
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QToolTip>
