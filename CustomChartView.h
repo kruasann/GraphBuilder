@@ -1,6 +1,7 @@
 #ifndef CUSTOMCHARTVIEW_H
 #define CUSTOMCHARTVIEW_H
 
+// Подключаем необходимые заголовочные файлы для работы с графиками и обработкой событий в Qt
 #include <QtCharts/QChartView>
 #include <QMouseEvent>
 #include <QWheelEvent>
@@ -9,32 +10,36 @@
 #include <QAction>
 #include <QToolTip>
 
+// Класс для кастомизированного отображения графика на основе QChartView
 class CustomChartView : public QChartView {
-    Q_OBJECT
+    Q_OBJECT  // Мета-объект Qt для работы с сигналами и слотами
+
 public:
+    // Конструктор класса CustomChartView, принимает указатель на график (QChart)
     explicit CustomChartView(QChart* chart, QWidget* parent = nullptr);
 
 signals:
-    void mouseMoved(double x, double y); // Сигнал для передачи координат мыши
+    // Сигнал для передачи координат мыши, когда мышь двигается по графику
+    void mouseMoved(double x, double y);
 
 protected:
-    // Переопределенные события
-    void wheelEvent(QWheelEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-    void contextMenuEvent(QContextMenuEvent* event) override; // Контекстное меню
+    // Переопределенные события для обработки взаимодействия с мышью и колесиком
+    void wheelEvent(QWheelEvent* event) override;  // Обработчик события колесика мыши (для зума)
+    void mousePressEvent(QMouseEvent* event) override;  // Обработчик события нажатия кнопки мыши
+    void mouseMoveEvent(QMouseEvent* event) override;  // Обработчик события перемещения мыши
+    void mouseReleaseEvent(QMouseEvent* event) override;  // Обработчик события отпускания кнопки мыши
+    void contextMenuEvent(QContextMenuEvent* event) override;  // Обработчик контекстного меню
 
 private:
-    // Переменные состояния для обработки событий мыши
-    QPoint lastMousePos; // Последняя позиция мыши
-    bool leftMouseButtonPressed = false; // ЛКМ нажата
-    bool rightMouseButtonPressed = false; // ПКМ нажата
+    // Переменные состояния для отслеживания положения мыши и нажатия кнопок
+    QPoint lastMousePos;  // Последняя позиция мыши
+    bool leftMouseButtonPressed = false;  // Флаг, указывающий, нажата ли левая кнопка мыши
+    bool rightMouseButtonPressed = false;  // Флаг, указывающий, нажата ли правая кнопка мыши
 
-    // Частные методы
-    void resetZoom();        // Сбросить зум
-    void toggleGrid();       // Переключить отображение сетки
-    void changeTheme();      // Изменить тему (темная/светлая)
+    // Приватные методы, выполняющие операции на графике
+    void resetZoom();        // Метод для сброса зума графика
+    void toggleGrid();       // Метод для переключения отображения сетки
+    void changeTheme();      // Метод для переключения темы графика (темная/светлая)
 };
 
 #endif // CUSTOMCHARTVIEW_H
