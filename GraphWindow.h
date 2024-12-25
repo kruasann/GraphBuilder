@@ -72,7 +72,7 @@ private:
     void addFunction(const QString& expression = "sin(x)");  // Метод для добавления новой функции
     void removeFunction(int index);  // Метод для удаления функции по индексу
     QColor getNextColor();  // Метод для получения следующего цвета для функции
-
+    void showStartDialog();
     void createMenus();  // Метод для создания меню
     void createToolBar();  // Метод для создания панели инструментов
 

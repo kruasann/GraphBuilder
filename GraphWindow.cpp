@@ -74,6 +74,8 @@ GraphWindow::GraphWindow(QWidget* parent)
     QWidget* rightWidget = new QWidget();
     QVBoxLayout* rightLayout = new QVBoxLayout(rightWidget);
 
+    showStartDialog();
+
     // Создаем график
     chart = new QChart();
     chart->setTitle(tr("Plot Viewer"));
@@ -234,6 +236,10 @@ void GraphWindow::removeFunction(int index) {
     updateGraph();
 }
 
+void GraphWindow::showStartDialog() {
+    QMessageBox::information(this, tr("Welcome to GraphBuilder"),
+        tr("Project created by:\nArseniy Selaninov\nVersion: 1.0"));
+}
 
 QColor GraphWindow::getNextColor() {
     // Статическая переменная для отслеживания индекса текущего цвета
