@@ -1,6 +1,8 @@
 N:\gb\GraphBuilder\CustomChartView.cpp;N:\gb\GraphBuilder\x64\Debug\CustomChartView.obj
 N:\gb\GraphBuilder\GraphWindow.cpp;N:\gb\GraphBuilder\x64\Debug\GraphWindow.obj
 N:\gb\GraphBuilder\main.cpp;N:\gb\GraphBuilder\x64\Debug\main.obj
+N:\gb\GraphBuilder\SplashScreen.cpp;N:\gb\GraphBuilder\x64\Debug\SplashScreen.obj
 N:\gb\GraphBuilder\x64\Debug\qt\rcc\qrc_resources.cpp;N:\gb\GraphBuilder\x64\Debug\qrc_resources.obj
 N:\gb\GraphBuilder\x64\Debug\qt\moc\moc_GraphWindow.cpp;N:\gb\GraphBuilder\x64\Debug\moc_GraphWindow.obj
 N:\gb\GraphBuilder\x64\Debug\qt\moc\moc_CustomChartView.cpp;N:\gb\GraphBuilder\x64\Debug\moc_CustomChartView.obj
+N:\gb\GraphBuilder\x64\Debug\qt\moc\moc_SplashScreen.cpp;N:\gb\GraphBuilder\x64\Debug\moc_SplashScreen.obj

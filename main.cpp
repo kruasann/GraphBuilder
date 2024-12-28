@@ -6,6 +6,7 @@
 #include <QPalette>       // Подключение класса QPalette для настройки палитры цветов интерфейса
 #include <QIcon>          // Подключение класса QIcon для установки иконки окна
 #include "GraphWindow.h"  // Подключение заголовочного файла для главного окна приложения
+#include "SplashScreen.h" // Подключение заставки
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);  // Создание объекта приложения с аргументами командной строки
@@ -40,7 +41,18 @@ int main(int argc, char* argv[]) {
         qDebug() << "Не удалось загрузить файл перевода.";  // Выводим сообщение об ошибке, если файл перевода не найден
     }
 
-    GraphWindow window;  // Создание объекта главного окна приложения
-    window.show();  // Отображение главного окна
+    // Создаем заставку
+    SplashScreen splashScreen;
+    splashScreen.show();
+
+    // Создаем главное окно, но пока не показываем его
+    GraphWindow mainWindow;
+
+    // При нажатии кнопки "Start" на заставке закрываем ее и открываем главное окно
+    QObject::connect(&splashScreen, &SplashScreen::startClicked, [&]() {
+        splashScreen.close();
+        mainWindow.show();
+        });
+
     return app.exec();  // Запуск основного цикла приложения
 }

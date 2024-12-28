@@ -24,12 +24,18 @@
     <ClCompile Include="CustomChartView.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="SplashScreen.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GraphWindow.h">
       <Filter>Файлы заголовков</Filter>
     </QtMoc>
     <QtMoc Include="CustomChartView.h">
+      <Filter>Файлы заголовков</Filter>
+    </QtMoc>
+    <QtMoc Include="SplashScreen.h">
       <Filter>Файлы заголовков</Filter>
     </QtMoc>
   </ItemGroup>
